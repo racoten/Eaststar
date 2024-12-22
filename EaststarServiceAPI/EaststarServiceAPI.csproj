@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>d0147528-8bae-473c-936d-688acdbe076f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>

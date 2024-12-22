@@ -8,7 +8,7 @@ namespace EaststarServiceAPI.Tasking
     public class OutputHandling
     {
         EaststarContext context = new EaststarContext();
-        public void PostOutputForOperator(AgentsInfo agentsInfo, string output)
+        public string PostOutputForOperator(string agentId, string output)
         {
             
             var guid = Guid.NewGuid();
@@ -17,11 +17,13 @@ namespace EaststarServiceAPI.Tasking
             {
                 Id = guid.ToString(),
                 Output = output,
-                AgentId = agentsInfo.Id
+                AgentId = agentId
             };
 
             context.TaskOutput.Add(outputTask);
             context.SaveChanges();
+
+            return JsonSerializer.Serialize(outputTask);
         }
         public string GetOutputFromAgent(string agentId)
         {

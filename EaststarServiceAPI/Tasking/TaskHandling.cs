@@ -33,8 +33,16 @@ namespace EaststarServiceAPI.Tasking
             var tasks = ctx.Set<Tasks>()
                            .Where(t => t.AgentId == agentId)
                            .ToList();
+            if (tasks.Any())
+            {
+                var responseJson = JsonSerializer.Serialize(tasks);
+                Console.WriteLine(responseJson);
 
-            return JsonSerializer.Serialize(tasks);
+                return responseJson;
+            } else
+            {
+                return $"No tasks found for agent {agentId}";
+            }
         }
     }
 }

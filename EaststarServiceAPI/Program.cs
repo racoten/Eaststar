@@ -117,6 +117,8 @@ void StartOutputTaskingEndpoints()
                 return;
             }
 
+            tasks.Id = Guid.NewGuid().ToString();
+
             httpContext.Response.StatusCode = StatusCodes.Status201Created;
             await httpContext.Response.WriteAsync($"Successfully added task for {tasks.AgentId}");
         }
@@ -145,8 +147,6 @@ void StartOutputTaskingEndpoints()
 
     }).RequireAuthorization();
 }
-
-
 void StartOperatorLoginEndpoints()
 {
     var operatorLoginGroup = app.MapGroup("/operator");
