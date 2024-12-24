@@ -27,7 +27,7 @@ namespace EaststarServiceAPI.HttpListeners
             _globalSecretKey = GenerateRandomString(32);
             _initialized = true;
         }
-        public static async Task StartListener(HttpListenersInfo? listenerInfo, CancellationToken token)
+        public async Task StartListener(HttpListenersInfo? listenerInfo, CancellationToken token)
         {
             var builder = WebApplication.CreateBuilder();
             builder.WebHost.UseKestrel().UseUrls($"http://{listenerInfo.Host}:{listenerInfo.Port}/");
@@ -181,6 +181,11 @@ namespace EaststarServiceAPI.HttpListeners
 
 
             app.MapGet("/hello", () => "Hello From Endpoint with Authorization").RequireAuthorization();
+
+            var message = "Creating new listener" +
+                $"{listenerInfo}\n";
+            Console.WriteLine(message);
+
             await app.RunAsync(token);
         }
 

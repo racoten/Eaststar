@@ -26,8 +26,9 @@ namespace EaststarServiceAPI.HttpListeners
                 context.SaveChanges();
 
                 var cts = new CancellationTokenSource();
+                HttpListenersCreateForAgents httpListenersCreateForAgents = new HttpListenersCreateForAgents();
                 _ctsMap[listener.Id] = cts;
-                _serverTasks[listener.Id] = Task.Run(() => HttpListenersCreateForAgents.StartListener(listener, cts.Token));
+                _serverTasks[listener.Id] = Task.Run(() => httpListenersCreateForAgents.StartListener(listener, cts.Token));
                 return true;
             }
             catch (Exception ex)

@@ -4,15 +4,15 @@ namespace EaststarServiceAPI.Operators
 {
     public class AgentRegister
     {
+        private readonly EaststarContext _context = new EaststarContext();
         public bool Register(AgentsInfo agentsInfo)
         {
-            using var context = new EaststarContext();
 
             try
             {
                 Guid guid = Guid.NewGuid();
 
-                var existingUser = context.AgentsInfo
+                var existingUser = _context.AgentsInfo
                     .FirstOrDefault(o => o.Id == agentsInfo.Id);
 
                 if (existingUser != null)
@@ -22,8 +22,8 @@ namespace EaststarServiceAPI.Operators
 
                 agentsInfo.Id = guid.ToString();
 
-                context.AgentsInfo.Add(agentsInfo);
-                context.SaveChanges();
+                _context.AgentsInfo.Add(agentsInfo);
+                _context.SaveChanges();
 
                 return true;
             }

@@ -2,9 +2,9 @@
 {
     public class AgentHealthCheck
     {
+        private readonly EaststarContext context = new EaststarContext();
         public bool HealthCheck(AgentsInfo agentsInfo)
         {
-            using var context = new EaststarContext();
 
             var agent = context.AgentsInfo.FirstOrDefault(a => a.Id == agentsInfo.Id);
 

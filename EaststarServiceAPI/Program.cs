@@ -13,6 +13,8 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EaststarServiceAPI.Tasking;
+using EaststarServiceAPI.Testing;
+using EaststarServiceAPI.Agents;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    Listeners.Start();
 }
 
 app.UseHttpsRedirection();
@@ -63,9 +67,86 @@ app.UseAuthorization();
 StartListenerHandlingEndpoints();
 StartOperatorLoginEndpoints();
 StartOutputTaskingEndpoints();
+GetInformationFromDatabase();
 
 app.Run();
 
+void GetInformationFromDatabase()
+{
+    var listenersGroup = app.MapGroup("/get/listeners").RequireAuthorization();
+    var agentsGroup = app.MapGroup("/get/agents").RequireAuthorization();
+    var operatorsGroup = app.MapGroup("/get/operators").RequireAuthorization();
+
+    listenersGroup.MapGet("/", async (HttpContext httpContext) =>
+    {
+        var getter = new HttpListenersGet();
+        var listeners = getter.GetAllListeners();
+
+        if (listeners != null)
+        {
+            var response = JsonSerializer.Serialize(listeners);
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(response);
+        } else
+        {
+            await httpContext.Response.WriteAsync("No active listeners found");
+        }
+    });
+
+    listenersGroup.MapGet("/{id}", async (HttpContext httpContext, string id) =>
+    {
+        var getter = new HttpListenersGet();
+        var listener = getter.GetListenerById(id);
+
+        if (listener != null)
+        {
+            var response = JsonSerializer.Serialize(listener);
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(response);
+        }
+        else
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            await httpContext.Response.WriteAsync("Listener not found.");
+        }
+    });
+
+    agentsGroup.MapGet("/", async (HttpContext httpContext) =>
+    {
+        var agentList = new AgentList();
+        var agents = await agentList.GetAgentsAsync();
+
+        if (agents != null && agents.Any())
+        {
+            var response = JsonSerializer.Serialize(agents);
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(response);
+        }
+        else
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            await httpContext.Response.WriteAsync("No agents found.");
+        }
+    });
+
+    operatorsGroup.MapGet("/", async (HttpContext httpContext) =>
+    {
+        var operatorList = new OperatorList();
+        var operators = await operatorList.GetOperatorsAsync();
+
+        if (operators != null && operators.Any())
+        {
+            var response = JsonSerializer.Serialize(operators);
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(response);
+        }
+        else
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            await httpContext.Response.WriteAsync("No operators found.");
+        }
+    });
+}
 void StartOutputTaskingEndpoints()
 {
     OutputHandling outputHandling = new OutputHandling();
@@ -320,34 +401,6 @@ void StartListenerHandlingEndpoints()
         {
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await httpContext.Response.WriteAsync($"Error: {ex.Message}");
-        }
-    });
-
-    listenersGroup.MapGet("/", async (HttpContext httpContext) =>
-    {
-        var getter = new HttpListenersGet();
-        var listeners = getter.GetAllListeners();
-        var response = JsonSerializer.Serialize(listeners);
-
-        httpContext.Response.ContentType = "application/json";
-        await httpContext.Response.WriteAsync(response);
-    });
-
-    listenersGroup.MapGet("/{id}", async (HttpContext httpContext, string id) =>
-    {
-        var getter = new HttpListenersGet();
-        var listener = getter.GetListenerById(id);
-
-        if (listener != null)
-        {
-            var response = JsonSerializer.Serialize(listener);
-            httpContext.Response.ContentType = "application/json";
-            await httpContext.Response.WriteAsync(response);
-        }
-        else
-        {
-            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            await httpContext.Response.WriteAsync("Listener not found.");
         }
     });
 
